@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBC Church Admin System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --primary-light: #34495e;
+            --accent: #e67e22;
+            --accent-light: #f39c12;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --lighter: #f8f9fa;
+            --text: #2c3e50;
+            --text-light: #7f8c8d;
+            --border: #bdc3c7;
+            --white: #fff;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--lighter);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Login Page Styles */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2.5em;
+            color: var(--white);
+        }
+
+        .login-header h1 {
+            color: var(--primary);
+            font-size: 1.8em;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .login-header p {
+            color: var(--text-light);
+            font-size: 0.95em;
+        }
+
+        .login-footer {
+            margin-top: 24px;
+        }
+
+        /* Layout */
+        .dashboard-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background: var(--primary);
+            color: var(--white);
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .sidebar-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: rgba(230, 126, 34, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+
+        .sidebar-logo img {
+            width: 100%;
+            border-radius: 6px;
+        }
+
+        .sidebar-title h2 {
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .sidebar-title p {
+            font-size: 0.8em;
+            color: rgba(255,255,255,0.7);
+            margin-top: 3px;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: rgba(230, 126, 34, 0.2);
+            color: var(--white);
+            border-left-color: var(--accent);
+        }
+
+        .nav-link.active {
+            background: var(--accent);
+            color: var(--white);
+            border-left-color: var(--accent);
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            background: var(--lighter);
+        }
+
+        .topbar {
+            background: var(--white);
+            padding: 20px 40px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar-title h1 {
+            font-size: 1.8em;
+            color: var(--primary);
+        }
+
+        .topbar-tools {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-box {
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--lighter);
+            width: 250px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--white);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: var(--accent);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--accent-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-secondary {
+            background: var(--light);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85em;
+        }
+
+        /* Page Content */
+        .page-content {
+            padding: 30px 40px;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .stat-title {
+            color: var(--text-light);
+            font-size: 0.9em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-icon {
+            font-size: 1.8em;
+            color: var(--accent);
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--text-light);
+        }
+
+        .stat-change {
+            font-size: 0.85em;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--light);
+        }
+
+        .stat-change.up {
+            color: var(--success);
+        }
+
+        .stat-change.down {
+            color: var(--danger);
+        }
+
+        /* Charts */
+        .chart-container {
+            background: var(--white);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .chart-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Tables */
+        .table-wrapper {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--lighter);
+            padding: 16px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--light);
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--light);
+        }
+
+        tr:hover {
+            background: var(--lighter);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-upcoming {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-ongoing {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-past {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .form-group .required-asterisk {
+            color: var(--danger);
+            font-weight: 700;
+            margin-left: 4px;
+        }
+
+        .form-group input.error,
+        .form-group select.error,
+        .form-group textarea.error {
+            border-color: var(--danger) !important;
+            background-color: rgba(231, 76, 60, 0.05);
+        }
+
+        .form-error {
+            color: var(--danger);
+            font-size: 0.85em;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--light);
+            border-radius: 8px;
+            font-size: 1em;
+            color: var(--text);
+            background: var(--white);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .modal-header h2 {
+            color: var(--primary);
+            font-size: 1.5em;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.8em;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--text);
+            transform: rotate(90deg);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .empty-state i {
+            font-size: 3.5em;
+            color: var(--light);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5em;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: var(--text-light);
+            margin-bottom: 24px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                padding: 0;
+                position: absolute;
+            }
+
+            .sidebar.active {
+                width: 260px;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .page-content {
+                padding: 20px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            td, th {
+                padding: 10px;
+            }
+        }
+
+        /* Utilities */
+        .d-flex {
+            display: flex;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .gap-2 {
+            gap: 16px;
+        }
+
+        .mb-3 {
+            margin-bottom: 24px;
+        }
+
+        .mt-3 {
+            margin-top: 24px;
+        }
+
+        /* Notification Toast */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--white);
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            z-index: 3000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-success {
+            border-left-color: var(--success);
+        }
+
+        .notification-success i {
+            color: var(--success);
+            font-size: 1.2em;
+        }
+
+        .notification-error {
+            border-left-color: var(--danger);
+        }
+
+        .notification-error i {
+            color: var(--danger);
+            font-size: 1.2em;
+        }
+
+        .notification-info {
+            border-left-color: var(--accent);
+        }
+
+        .notification-info i {
+            color: var(--accent);
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .notification {
+                min-width: auto;
+                left: 10px;
+                right: 10px;
+                transform: translateY(-100px);
+            }
+
+            .notification.show {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="fas fa-church"></i>
+                </div>
+                <h1>BBC Church Admin</h1>
+                <p>Sign In to Your Account</p>
+            </div>
+            <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email Address <span class="required-asterisk">*</span></label>
+                    <input type="email" id="loginEmail" name="email" placeholder="admin@church.com" autocomplete="email">
+                    <div class="form-error" style="display: none;" id="error-loginEmail"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password <span class="required-asterisk">*</span></label>
+                    <input type="password" id="loginPassword" name="password" placeholder="Enter your password" autocomplete="current-password">
+                    <div class="form-error" style="display: none;" id="error-loginPassword"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                </div>
+                <div class="form-error" id="loginError" style="display: none; margin-bottom: 15px;"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                <button type="submit" class="btn" style="width: 100%; justify-content: center; font-size: 1em; padding: 12px;">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+            <div class="login-footer">
+                <p style="color: var(--text-light); font-size: 0.9em; margin-top: 20px; text-align: center;">
+                    <i class="fas fa-info-circle"></i> Demo credentials available upon request
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard (Hidden until login) -->
+    <div id="dashboardApp" class="dashboard-wrapper" style="display: none;">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-church"></i>
+                </div>
+                <div class="sidebar-title">
+                    <h2>BBC</h2>
+                    <p>Church Admin</p>
+                </div>
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a class="nav-link active" onclick="switchSection('dashboard')">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="switchSection('events')">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Events</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="switchSection('members')">
+                            <i class="fas fa-users"></i>
+                            <span>Members</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="switchSection('registrations')">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>Registrations</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="switchSection('donations')">
+                            <i class="fas fa-hand-holding-heart"></i>
+                            <span>Donations</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="switchSection('birthdays')">
+                            <i class="fas fa-birthday-cake"></i>
+                            <span>Birthdays</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" style="display: none;">
+                        <a class="nav-link" onclick="switchSection('users')">
+                            <i class="fas fa-users-cog"></i>
+                            <span>Users</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Topbar -->
+            <div class="topbar">
+                <div class="topbar-title">
+                    <h1 id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="topbar-tools">
+                    <button class="btn btn-secondary" onclick="handleLogout()" title="Sign Out">
+                        <i class="fas fa-sign-out-alt"></i> Sign Out
+                    </button>
+                </div>
+            </div>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Dashboard Section -->
+                <section id="dashboard" class="content-section active">
+                    <!-- Stats Cards -->
+                    <div class="dashboard-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Total Members</div>
+                                    <div class="stat-value" id="totalMembers">0</div>
+                                </div>
+                                <i class="fas fa-users stat-icon"></i>
+                            </div>
+                            <div class="stat-change up">
+                                <i class="fas fa-arrow-up"></i> Updated today
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Upcoming Events</div>
+                                    <div class="stat-value" id="upcomingEvents">0</div>
+                                </div>
+                                <i class="fas fa-calendar-alt stat-icon"></i>
+                            </div>
+                            <div class="stat-change up">
+                                <i class="fas fa-arrow-up"></i> This month
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Event Registrations</div>
+                                    <div class="stat-value" id="totalRegistrations">0</div>
+                                </div>
+                                <i class="fas fa-clipboard-list stat-icon"></i>
+                            </div>
+                            <div class="stat-change up">
+                                <i class="fas fa-arrow-up"></i> This month
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Monthly Donations</div>
+                                    <div class="stat-value" id="monthlyDonations">₱0</div>
+                                </div>
+                                <i class="fas fa-hand-holding-heart stat-icon"></i>
+                            </div>
+                            <div class="stat-change" id="donationChangeIndicator">
+                                <i class="fas fa-arrow-up"></i> <span id="donationChangeText">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="chart-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 class="chart-title">Event Registrations Trend</h3>
+                            <select id="registrationYearSelect" onchange="handleYearChange()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; cursor: pointer;">
+                            </select>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="registrationChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 class="chart-title">Donation Trends</h3>
+                            <select id="donationYearSelect" onchange="handleYearChange()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; cursor: pointer;">
+                            </select>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="donationChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Events & Birthdays -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
+                        <!-- Upcoming Events -->
+                        <div class="table-wrapper">
+                            <div class="table-header">
+                                <h3 class="table-title">Upcoming Events</h3>
+                                <button class="btn btn-sm" onclick="openEventModal()">
+                                    <i class="fas fa-plus"></i> New Event
+                                </button>
+                            </div>
+                            <div id="upcomingEventsList" style="padding: 20px;">
+                                <div class="empty-state">
+                                    <i class="fas fa-calendar"></i>
+                                    <h3>No Upcoming Events</h3>
+                                    <p>Create an event to get started</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Birthdays This Week -->
+                        <div class="table-wrapper">
+                            <div class="table-header">
+                                <h3 class="table-title">Birthdays This Week</h3>
+                            </div>
+                            <div id="upcomingBirthdaysList" style="padding: 20px;">
+                                <div class="empty-state">
+                                    <i class="fas fa-birthday-cake"></i>
+                                    <h3>No Birthdays This Week</h3>
+                                    <p>Check back later for celebrations</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Events Section -->
+                <section id="events" class="content-section">
+                    <div class="table-wrapper">
+                        <div class="table-header">
+                            <div style="display: flex; gap: 15px; align-items: center; flex: 1;">
+                                <h3 class="table-title">Events Management</h3>
+                                <input type="text" id="eventsSearchInput" placeholder="Search events..." onkeyup="filterEvents()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px;">
+                            </div>
+                            <button class="btn" onclick="openEventModal()">
+                                <i class="fas fa-plus"></i> Create Event
+                            </button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Event Name</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="eventsList">
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="empty-state">
+                                            <i class="fas fa-calendar"></i>
+                                            <h3>No Events Yet</h3>
+                                            <p>Create your first event to get started</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Members Section -->
+                <section id="members" class="content-section">
+                    <div class="table-wrapper">
+                        <div class="table-header">
+                            <div style="display: flex; gap: 15px; align-items: center; flex: 1;">
+                                <h3 class="table-title">Members Directory</h3>
+                                <input type="text" id="membersSearchInput" placeholder="Search members..." onkeyup="filterMembers()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px;">
+                            </div>
+                            <button class="btn" onclick="openMemberModal()">
+                                <i class="fas fa-plus"></i> Add Member
+                            </button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Ministry</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="membersList">
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="empty-state">
+                                            <i class="fas fa-users"></i>
+                                            <h3>No Members Yet</h3>
+                                            <p>Add your first member to get started</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Registrations Section -->
+                <section id="registrations" class="content-section">
+                    <div class="table-wrapper">
+                        <div class="table-header">
+                            <div style="display: flex; gap: 15px; align-items: center; flex: 1;">
+                                <h3 class="table-title">Event Registrations</h3>
+                                <input type="text" id="registrationsSearchInput" placeholder="Search registrations..." onkeyup="filterRegistrations()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px;">
+                            </div>
+                            <button class="btn" onclick="openRegistrationModal()">
+                                <i class="fas fa-plus"></i> Register Member
+                            </button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Member</th>
+                                    <th>Registered On</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="registrationsList">
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="empty-state">
+                                            <i class="fas fa-clipboard-list"></i>
+                                            <h3>No Registrations Yet</h3>
+                                            <p>Register members for events</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Donations Section -->
+                <section id="donations" class="content-section">
+                    <div class="dashboard-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Total This Month</div>
+                                    <div class="stat-value" id="monthTotal">$0</div>
+                                </div>
+                                <i class="fas fa-hand-holding-heart stat-icon"></i>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Total This Year</div>
+                                    <div class="stat-value" id="yearTotal">$0</div>
+                                </div>
+                                <i class="fas fa-chart-line stat-icon"></i>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Donor Count</div>
+                                    <div class="stat-value" id="donorCount">0</div>
+                                </div>
+                                <i class="fas fa-users stat-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <div class="table-header">
+                            <div style="display: flex; gap: 15px; align-items: center; flex: 1;">
+                                <h3 class="table-title">Donation Records</h3>
+                                <input type="text" id="donationsSearchInput" placeholder="Search donations..." onkeyup="filterDonations()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px;">
+                            </div>
+                            <button class="btn" onclick="openDonationModal()">
+                                <i class="fas fa-plus"></i> Record Donation
+                            </button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Donor</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th>Notes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="donationsList">
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="empty-state">
+                                            <i class="fas fa-hand-holding-heart"></i>
+                                            <h3>No Donations Recorded</h3>
+                                            <p>Record donations to track giving</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Birthdays Section -->
+                <section id="birthdays" class="content-section">
+                    <div class="table-wrapper">
+                        <div class="table-header">
+                            <div style="display: flex; gap: 15px; align-items: center; flex: 1;">
+                                <h3 class="table-title">Birthday Calendar</h3>
+                                <input type="text" id="birthdaysSearchInput" placeholder="Search birthdays..." onkeyup="filterBirthdays()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px;">
+                            </div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Birthday</th>
+                                    <th>Age</th>
+                                    <th>Email</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="birthdaysList">
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="empty-state">
+                                            <i class="fas fa-birthday-cake"></i>
+                                            <h3>No Birthday Data</h3>
+                                            <p>Add birthday information to members</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Users Section -->
+                <section id="users" class="content-section">
+                    <div class="table-wrapper">
+                        <div class="table-header">
+                            <div style="display: flex; gap: 15px; align-items: center; flex: 1;">
+                                <h3 class="table-title">User Management</h3>
+                                <input type="text" id="usersSearchInput" placeholder="Search users..." onkeyup="filterUsers()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px;">
+                            </div>
+                            <button class="btn" onclick="openUserModal()">
+                                <i class="fas fa-plus"></i> Add User
+                            </button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersList">
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="empty-state">
+                                            <i class="fas fa-users"></i>
+                                            <h3>No Users</h3>
+                                            <p>Create a new user to get started</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Member Modal -->
+    <div id="memberModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Member</h2>
+                <button class="close-btn" onclick="closeMemberModal()">&times;</button>
+            </div>
+            <form id="memberForm" onsubmit="validateAndSaveMember(event)" novalidate>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Full Name <span class="required-asterisk">*</span></label>
+                    <input type="text" name="name">
+                    <div class="form-error" style="display: none;" id="error-name"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" name="email">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Phone</label>
+                    <input type="tel" name="phone">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-venus-mars"></i> Gender</label>
+                    <select name="gender">
+                        <option value="">Select...</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-heart"></i> Ministry</label>
+                    <input type="text" name="ministry" placeholder="e.g., Worship Team">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-birthday-cake"></i> Birthday</label>
+                    <input type="date" name="birthday">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-calendar-check"></i> Join Date</label>
+                    <input type="date" name="join_date">
+                </div>
+                <button type="submit" class="btn">
+                    <i class="fas fa-save"></i> Save Member
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Member Details Modal (NEW) -->
+    <div id="memberDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-circle" style="margin-right: 12px; color: #e67e22;"></i>Member Details</h2>
+                <button class="close-btn" onclick="closeMemberDetailsModal()">&times;</button>
+            </div>
+            <div style="padding: 20px; background: var(--lighter); border-radius: 8px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- Personal Information -->
+                    <div>
+                        <h3 style="color: var(--primary); margin-bottom: 16px; font-size: 1.1em;">
+                            <i class="fas fa-id-card" style="margin-right: 8px;"></i>Personal Information
+                        </h3>
+                        <div style="background: var(--white); padding: 16px; border-radius: 8px; box-shadow: var(--shadow);">
+                            <div style="margin-bottom: 16px;">
+                                <label style="color: var(--text-light); font-size: 0.9em; text-transform: uppercase;">Full Name</label>
+                                <p style="color: var(--primary); font-weight: 600; font-size: 1.1em; margin-top: 4px;" id="viewMemberName">-</p>
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="color: var(--text-light); font-size: 0.9em; text-transform: uppercase;">Email</label>
+                                <p style="color: var(--primary); margin-top: 4px;" id="viewMemberEmail">-</p>
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="color: var(--text-light); font-size: 0.9em; text-transform: uppercase;">Phone</label>
+                                <p style="color: var(--primary); margin-top: 4px;" id="viewMemberPhone">-</p>
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="color: var(--text-light); font-size: 0.9em; text-transform: uppercase;">Gender</label>
+                                <p style="color: var(--primary); margin-top: 4px;" id="viewMemberGender">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ministry & Dates -->
+                    <div>
+                        <h3 style="color: var(--primary); margin-bottom: 16px; font-size: 1.1em;">
+                            <i class="fas fa-church" style="margin-right: 8px;"></i>Church Information
+                        </h3>
+                        <div style="background: var(--white); padding: 16px; border-radius: 8px; box-shadow: var(--shadow);">
+                            <div style="margin-bottom: 16px;">
+                                <label style="color: var(--text-light); font-size: 0.9em; text-transform: uppercase;">Ministry</label>
+                                <p style="color: var(--primary); margin-top: 4px;" id="viewMemberMinistry">-</p>
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="color: var(--text-light); font-size: 0.9em; text-transform: uppercase;">Join Date</label>
+                                <p style="color: var(--primary); margin-top: 4px;" id="viewMemberJoinDate">-</p>
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="color: var(--text-light); font-size: 0.9em; text-transform: uppercase;">Status</label>
+                                <p style="margin-top: 4px;"><span class="status-badge status-approved" id="viewMemberStatus">Active</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Birthday Section -->
+                <div style="background: var(--white); padding: 16px; border-radius: 8px; box-shadow: var(--shadow); margin-top: 20px;">
+                    <h3 style="color: var(--primary); margin-bottom: 12px; font-size: 1.1em;">
+                        <i class="fas fa-birthday-cake" style="margin-right: 8px; color: #e67e22;"></i>Birthday Information
+                    </h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="color: var(--text-light); font-size: 0.9em; text-transform: uppercase;">Birthday</label>
+                            <p style="color: var(--primary); font-weight: 600; margin-top: 4px;" id="viewMemberBirthday">-</p>
+                        </div>
+                        <div>
+                            <label style="color: var(--text-light); font-size: 0.9em; text-transform: uppercase;">Age</label>
+                            <p style="color: var(--primary); font-weight: 600; margin-top: 4px;" id="viewMemberAge">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes Section -->
+                <div style="background: var(--white); padding: 16px; border-radius: 8px; box-shadow: var(--shadow); margin-top: 20px;">
+                    <h3 style="color: var(--primary); margin-bottom: 12px; font-size: 1.1em;">
+                        <i class="fas fa-sticky-note" style="margin-right: 8px;"></i>Notes
+                    </h3>
+                    <p style="color: var(--text-light); font-style: italic;" id="viewMemberNotes">No notes</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeMemberDetailsModal()">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Modal -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create Event</h2>
+                <button class="close-btn" onclick="closeEventModal()">&times;</button>
+            </div>
+            <form id="eventForm" onsubmit="validateAndSaveEvent(event)" novalidate>
+                <div class="form-group">
+                    <label><i class="fas fa-heading"></i> Event Name <span class="required-asterisk">*</span></label>
+                    <input type="text" name="name">
+                    <div class="form-error" style="display: none;" id="error-eventName"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-align-left"></i> Description</label>
+                    <textarea name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-calendar"></i> Date <span class="required-asterisk">*</span></label>
+                    <input type="date" name="date">
+                    <div class="form-error" style="display: none;" id="error-eventDate"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-clock"></i> Time</label>
+                    <input type="time" name="time">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Location</label>
+                    <input type="text" name="location">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Event Type</label>
+                    <select name="event_type">
+                        <option value="">Select...</option>
+                        <option value="Service">Service</option>
+                        <option value="Conference">Conference</option>
+                        <option value="Workshop">Workshop</option>
+                        <option value="Social">Social</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-users"></i> Capacity</label>
+                    <input type="number" name="capacity" min="0">
+                </div>
+                <button type="submit" class="btn">
+                    <i class="fas fa-save"></i> Save Event
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Registration Modal -->
+    <div id="registrationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Register for Event</h2>
+                <button class="close-btn" onclick="closeRegistrationModal()">&times;</button>
+            </div>
+            <form id="registrationForm" onsubmit="validateAndSaveRegistration(event)" novalidate>
+                <div class="form-group">
+                    <label><i class="fas fa-calendar-alt"></i> Select Event <span class="required-asterisk">*</span></label>
+                    <select name="eventId" id="eventSelect">
+                        <option value="">Select an event...</option>
+                    </select>
+                    <div class="form-error" style="display: none;" id="error-eventId"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Select Member <span class="required-asterisk">*</span></label>
+                    <select name="memberId" id="memberSelect">
+                        <option value="">Select a member...</option>
+                    </select>
+                    <div class="form-error" style="display: none;" id="error-memberId"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                </div>
+                <button type="submit" class="btn">
+                    <i class="fas fa-check"></i> Register
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Donation Modal -->
+    <div id="donationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Record Donation</h2>
+                <button class="close-btn" onclick="closeDonationModal()">&times;</button>
+            </div>
+            <form id="donationForm" onsubmit="validateAndSaveDonation(event)" novalidate>
+                <div class="form-group">
+                    <label><i class="fas fa-calendar"></i> Date <span class="required-asterisk">*</span></label>
+                    <input type="date" name="donation_date">
+                    <div class="form-error" style="display: none;" id="error-donationDate"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Donor Name</label>
+                    <input type="text" name="donor_name">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-dollar-sign"></i> Amount <span class="required-asterisk">*</span></label>
+                    <input type="number" name="amount" step="0.01" min="0">
+                    <div class="form-error" style="display: none;" id="error-amount"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Type</label>
+                    <select name="donation_type">
+                        <option value="General">General Offering</option>
+                        <option value="Tithe">Tithe</option>
+                        <option value="Building">Building Fund</option>
+                        <option value="Missions">Missions</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-align-left"></i> Notes</label>
+                    <textarea name="notes" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn">
+                    <i class="fas fa-save"></i> Record Donation
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 id="confirmModalTitle"><i class="fas fa-exclamation-triangle" style="margin-right: 12px; color: #e74c3c;"></i>Confirm Action</h2>
+                <button class="close-btn" onclick="closeDeleteConfirmModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div style="padding: 20px;">
+                <p id="deleteConfirmMessage" style="color: #2c3e50; margin-bottom: 24px; font-size: 1.05em;">Are you sure?</p>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button class="btn btn-secondary" onclick="closeDeleteConfirmModal()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button id="confirmBtn" class="btn btn-danger" onclick="confirmDelete()">
+                        <i class="fas fa-trash"></i> Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="userModalTitle">Add User</h2>
+                <button class="close-btn" onclick="closeUserModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="userForm" onsubmit="validateAndSaveUser(event)" novalidate>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Name <span class="required-asterisk">*</span></label>
+                    <input type="text" name="name" required>
+                    <div class="form-error" style="display: none;" id="error-userName"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email <span class="required-asterisk">*</span></label>
+                    <input type="email" name="email" required>
+                    <div class="form-error" style="display: none;" id="error-userEmail"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                </div>
+                <div class="form-group" id="passwordGroup">
+                    <label><i class="fas fa-lock"></i> Password <span class="required-asterisk">*</span></label>
+                    <input type="password" name="password">
+                    <div class="form-error" style="display: none;" id="error-userPassword"><i class="fas fa-exclamation-circle"></i><span></span></div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-shield-alt"></i> Role</label>
+                    <select name="role">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeUserModal()" style="flex: 1;">Cancel</button>
+                    <button type="submit" class="btn" style="flex: 1;"><i class="fas fa-save"></i> Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

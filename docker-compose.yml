@@ -1,0 +1,24 @@
+
+
+services:
+  church-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: church-admin
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app   # Mount your local folder
+      - /app/node_modules  # Keep container's node_modules
+    environment:
+      - NODE_ENV=development   # Change to 'production' when deploying
+    networks:
+      - church-network
+
+networks:
+  church-network:
+    driver: bridge
