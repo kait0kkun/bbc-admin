@@ -154,8 +154,6 @@ Data is stored in supabase:
 - `donations` - Event donations
 
 
-With Docker, the `data` directory is mounted as a volume, so your data persists even when containers are recreated.
-
 ## 🔒 Security Notes
 
 This is a basic system intended for internal church use. For production deployment:
