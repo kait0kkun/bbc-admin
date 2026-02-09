@@ -659,6 +659,31 @@
             }
         }
 
+        /* Responsive: Hide sidebar and show hamburger on mobile/tablet */
+        @media (max-width: 1024px) {
+            .sidebar {
+                left: -260px;
+                transition: left 0.3s;
+                position: fixed;
+            }
+            .sidebar.active {
+                left: 0;
+                z-index: 3000;
+                box-shadow: var(--shadow-lg);
+            }
+            .main-content {
+                margin-left: 0 !important;
+            }
+            .hamburger {
+                display: block !important;
+            }
+        }
+        /* Hide create button labels on mobile */
+        @media (max-width: 600px) {
+            .create-btn .btn-label {
+                display: none;
+            }
+        }
         /* Utilities */
         .d-flex {
             display: flex;
@@ -947,8 +972,8 @@
                         <div class="table-wrapper">
                             <div class="table-header">
                                 <h3 class="table-title">Upcoming Events</h3>
-                                <button class="btn btn-sm" onclick="openEventModal()">
-                                    <i class="fas fa-plus"></i> New Event
+                                <button class="btn create-btn" onclick="openEventModal()">
+                                    <i class="fas fa-plus"></i> <span class="btn-label">Create Event</span>
                                 </button>
                             </div>
                             <div id="upcomingEventsList" style="padding: 20px;">
@@ -1554,5 +1579,26 @@
     </div>
 
     <script src="app.js"></script>
+    <script>
+    // Hamburger menu toggle for mobile/tablet
+    document.addEventListener('DOMContentLoaded', function() {
+        const hamburger = document.getElementById('hamburgerMenu');
+        const sidebar = document.querySelector('.sidebar');
+        function checkSidebar() {
+            if (window.innerWidth <= 1024) {
+                hamburger.style.display = 'block';
+                sidebar.classList.remove('active');
+            } else {
+                hamburger.style.display = 'none';
+                sidebar.classList.add('active');
+            }
+        }
+        hamburger.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+        window.addEventListener('resize', checkSidebar);
+        checkSidebar();
+    });
+    </script>
 </body>
 </html>
