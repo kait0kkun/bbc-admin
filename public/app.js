@@ -196,6 +196,12 @@ function switchSection(sectionName) {
         link.classList.remove('active');
     });
     event.target.closest('.nav-link').classList.add('active');
+
+    // Close hamburger/sidebar on mobile/tablet
+    const sidebar = document.querySelector('.sidebar');
+    if (window.innerWidth <= 1024 && sidebar) {
+        sidebar.classList.remove('active');
+    }
     
     // Update page title
     const titles = {
@@ -814,17 +820,29 @@ async function validateAndSaveMember(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData);
-    
+
     if (!validateMember(data)) {
         return;
     }
-    
+
     try {
-        const response = await fetch(`${API_URL}/members`, {
-            method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify(data)
-        });
+        let response;
+        if (editingMemberId) {
+            // Update existing member
+            data.id = editingMemberId;
+            response = await fetch(`${API_URL}/members/${editingMemberId}`, {
+                method: 'PUT',
+                headers: getHeaders(),
+                body: JSON.stringify(data)
+            });
+        } else {
+            // Add new member
+            response = await fetch(`${API_URL}/members`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify(data)
+            });
+        }
 
         if (response.ok) {
             closeMemberModal();
@@ -1023,11 +1041,14 @@ function renderMembers() {
             <td>${member.phone || '-'}</td>
             <td>${member.ministry || '-'}</td>
             <td><span class="status-badge status-approved">Active</span></td>
-            <td style="display: flex; gap: 10px; justify-content: center;">
-                <button class="btn btn-sm" onclick="viewMemberDetails('${member.id}')" title="View Member" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #3498db;">
+            <td style="display: flex; gap: 0; justify-content: center;">
+                <button class="btn btn-sm" onclick="viewMemberDetails('${member.id}')" title="View Member" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #3498db; border-radius: 6px 0 0 6px; border-right: 1px solid #fff;">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button class="btn btn-sm btn-danger" onclick="deleteMember('${member.id}')" title="Delete Member" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center;">
+                <button class="btn btn-sm" onclick="editMember('${member.id}')" title="Edit Member" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #f39c12; color: #fff; border-radius: 0; border-right: 1px solid #fff;">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteMember('${member.id}')" title="Delete Member" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; border-radius: 0 6px 6px 0;">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
@@ -1035,39 +1056,63 @@ function renderMembers() {
     `).join('');
 }
 
-function openMemberModal() {
+let editingMemberId = null;
+
+function editMember(memberId) {
+    const member = members.find(m => m.id === memberId);
+    if (!member) return;
+
+    editingMemberId = memberId;
+    const form = document.getElementById('memberForm');
+    if (!form) return;
+    // Only fill form fields if they exist
+    const nameField = form.querySelector('input[name="name"]');
+    if (nameField) nameField.value = member.name || '';
+    const emailField = form.querySelector('input[name="email"]');
+    if (emailField) emailField.value = member.email || '';
+    const phoneField = form.querySelector('input[name="phone"]');
+    if (phoneField) phoneField.value = member.phone || '';
+    const birthdayField = form.querySelector('input[name="birthday"]');
+    if (birthdayField) birthdayField.value = member.birthday ? member.birthday.split('T')[0] : '';
+    const joinDateField = form.querySelector('input[name="join_date"]');
+    if (joinDateField) joinDateField.value = member.join_date ? member.join_date.split('T')[0] : '';
+    const genderField = form.querySelector('select[name="gender"]');
+    if (genderField) genderField.value = member.gender || '';
+    const ministryField = form.querySelector('input[name="ministry"]');
+    if (ministryField) ministryField.value = member.ministry || '';
+    const notesField = form.querySelector('textarea[name="notes"]');
+    if (notesField) notesField.value = member.notes || '';
+    // Show modal for edit
     document.getElementById('memberModal').classList.add('active');
+    const modalTitle = document.querySelector('#memberModal .modal-header h2');
+    if (modalTitle) modalTitle.textContent = 'Edit Member';
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Member';
+}
+
+function openMemberModal() {
+    editingMemberId = null;
+    document.getElementById('memberModal').classList.add('active');
+    const form = document.getElementById('memberForm');
+    if (form) {
+        form.reset();
+        // Set modal title and button for add mode
+        document.querySelector('#memberModal .modal-header h2').textContent = 'Add Member';
+        form.querySelector('button[type="submit"]').innerHTML = '<i class="fas fa-save"></i> Save Member';
+    }
 }
 
 function closeMemberModal() {
     document.getElementById('memberModal').classList.remove('active');
     document.getElementById('memberForm').reset();
+    editingMemberId = null;
+    // Reset modal title and button
+    document.querySelector('#memberModal .modal-header h2').textContent = 'Add Member';
+    document.querySelector('#memberForm button[type="submit"]').innerHTML = '<i class="fas fa-save"></i> Save Member';
 }
 
 async function saveMember(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData);
-
-    try {
-        const response = await fetch(`${API_URL}/members`, {
-            method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify(data)
-        });
-
-        if (response.ok) {
-            closeMemberModal();
-            await loadMembers();
-            updateDashboard();
-        } else {
-            const errorData = await response.json();
-            alert(errorData.message || 'Failed to save member');
-        }
-    } catch (error) {
-        console.error('Error saving member:', error);
-        alert('Failed to save member');
-    }
+    // This function is deprecated and should not be used. All member form submissions use validateAndSaveMember.
 }
 
 async function deleteMember(id) {
@@ -1171,11 +1216,11 @@ function renderEvents() {
                 <td>${event.time || '-'}</td>
                 <td>${event.location || '-'}</td>
                 <td><span class="status-badge status-${status}">${statusLabel}</span></td>
-                <td style="display: flex; gap: 10px; justify-content: center;">
-                    <button class="btn btn-sm" onclick="viewEventDetails('${event.id}')" title="View Event" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #3498db;">
+                <td style="display: flex; gap: 0; justify-content: center;">
+                    <button class="btn btn-sm" onclick="viewEventDetails('${event.id}')" title="View Event" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #3498db; border-radius: 6px 0 0 6px; border-right: 1px solid #fff;">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteEvent('${event.id}')" title="Delete Event" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center;">
+                    <button class="btn btn-sm btn-danger" onclick="deleteEvent('${event.id}')" title="Delete Event" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; border-radius: 0 6px 6px 0;">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
@@ -1209,10 +1254,14 @@ async function saveEvent(event) {
             closeEventModal();
             await loadEvents();
             updateDashboard();
+        } else {
+            const errorData = await response.json();
+            console.error('Server error:', errorData);
+            alert('Error saving event: ' + (errorData.message || 'Unknown error'));
         }
     } catch (error) {
         console.error('Error saving event:', error);
-        alert('Failed to save event');
+        alert('Failed to save event: ' + error.message);
     }
 }
 
@@ -1297,11 +1346,11 @@ function renderRegistrations() {
                 <td>${memberName}</td>
                 <td>${registeredDate}</td>
                 <td><span class="status-badge status-approved">Approved</span></td>
-                <td style="display: flex; gap: 10px; justify-content: center;">
-                    <button class="btn btn-sm" onclick="viewRegistrationDetails('${reg.id}')" title="View Registration" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #3498db;">
+                <td style="display: flex; gap: 0; justify-content: center;">
+                    <button class="btn btn-sm" onclick="viewRegistrationDetails('${reg.id}')" title="View Registration" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #3498db; border-radius: 6px 0 0 6px; border-right: 1px solid #fff;">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteRegistration('${reg.id}')" title="Delete Registration" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center;">
+                    <button class="btn btn-sm btn-danger" onclick="deleteRegistration('${reg.id}')" title="Delete Registration" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; border-radius: 0 6px 6px 0;">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
@@ -1445,11 +1494,11 @@ function renderDonations() {
                 <td>₱${parseFloat(donation.amount).toFixed(2)}</td>
                 <td>${donation.donation_type || 'General'}</td>
                 <td>${donation.notes || '-'}</td>
-                <td style="display: flex; gap: 10px; justify-content: center;">
-                    <button class="btn btn-sm" onclick="viewDonationDetails('${donation.id}')" title="View Donation" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #3498db;">
+                <td style="display: flex; gap: 0; justify-content: center;">
+                    <button class="btn btn-sm" onclick="viewDonationDetails('${donation.id}')" title="View Donation" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #3498db; border-radius: 6px 0 0 6px; border-right: 1px solid #fff;">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteDonation('${donation.id}')" title="Delete Donation" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center;">
+                    <button class="btn btn-sm btn-danger" onclick="deleteDonation('${donation.id}')" title="Delete Donation" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; border-radius: 0 6px 6px 0;">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
@@ -1648,14 +1697,14 @@ function renderUsers() {
                 <td>${user.email}</td>
                 <td><span class="status-badge ${user.role === 'admin' ? 'status-approved' : 'status-pending'}">${user.role}</span></td>
                 <td>${created}</td>
-                <td style="display: flex; gap: 10px; justify-content: center;">
-                    <button class="btn btn-sm" onclick="viewUserDetails('${user.id}')" title="View User" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #3498db;">
+                <td style="display: flex; gap: 0; justify-content: center;">
+                    <button class="btn btn-sm" onclick="viewUserDetails('${user.id}')" title="View User" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #3498db; border-radius: 6px 0 0 6px; border-right: 1px solid #fff;">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button class="btn btn-sm" onclick="editUser('${user.id}')" title="Edit User" style="padding: 6px 10px; width: auto; background: #f1c40f; color: #fff;">
+                    <button class="btn btn-sm" onclick="editUser('${user.id}')" title="Edit User" style="padding: 6px 10px; width: auto; background: #f1c40f; color: #fff; border-radius: 0; border-right: 1px solid #fff;">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')" title="Delete User" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center;">
+                    <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')" title="Delete User" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; border-radius: 0 6px 6px 0;">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
