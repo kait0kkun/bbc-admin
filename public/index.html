@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+        <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,10 +7,74 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+                                @media (max-width: 600px) {
+                                    .table-header {
+                                        display: flex !important;
+                                        flex-direction: row !important;
+                                        align-items: center !important;
+                                        gap: 8px !important;
+                                    }
+                                    .table-header > div {
+                                        display: flex !important;
+                                        flex-direction: row !important;
+                                        align-items: center !important;
+                                        gap: 8px !important;
+                                        flex: 1 1 0;
+                                        min-width: 0;
+                                    }
+                                    .table-title {
+                                        margin-bottom: 0 !important;
+                                    }
+                                    .table-header input[type="text"] {
+                                        flex: 1 1 0;
+                                        min-width: 0;
+                                        max-width: 100%;
+                                    }
+                                    .table-header .create-btn {
+                                        margin-left: 0 !important;
+                                        flex-shrink: 0;
+                                    }
+                                }
+                        /* Ensure table header icons are fully visible on mobile */
+                        .table-title i {
+                            min-width: 1.3em;
+                            min-height: 1.3em;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+                        @media (max-width: 600px) {
+                            .table-title {
+                                min-width: 2.2em;
+                                max-width: 2.2em;
+                                justify-content: flex-start;
+                            }
+                        }
+                /* Hide table title text on mobile, show only icon */
+                @media (max-width: 600px) {
+                    .table-title .table-title-label {
+                        display: none;
+                    }
+                }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        /* Stack table header and controls vertically on mobile, allow create button to wrap */
+        @media (max-width: 600px) {
+            .table-header {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 8px !important;
+                min-width: 0;
+            }
+            .table-header .create-btn, .table-header button.btn {
+                margin-top: 8px;
+                width: auto;
+                align-self: flex-end;
+            }
         }
 
         :root {
@@ -31,11 +95,19 @@
             --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        body {
+        html, body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: var(--lighter);
             color: var(--text);
             line-height: 1.6;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+        @media (max-width: 600px) {
+            .main-content, .modal-content {
+                width: 100vw !important;
+                overflow-x: auto !important;
+            }
         }
 
         /* Login Page Styles */
@@ -189,34 +261,47 @@
             background: var(--lighter);
         }
 
+
         .topbar {
             background: var(--white);
             padding: 20px 40px;
             box-shadow: var(--shadow);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 24px;
         }
-
+        .topbar-title {
+            flex: 1 1 0;
+            min-width: 0;
+        }
         .topbar-title h1 {
             font-size: 1.8em;
             color: var(--primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
         }
-
         .topbar-tools {
             display: flex;
             gap: 15px;
             align-items: center;
+            flex-shrink: 0;
         }
-
-        .search-box {
+        .search-box,
+        .table-header input[type="text"] {
             padding: 10px 16px;
             border: 1px solid var(--border);
             border-radius: 8px;
             background: var(--lighter);
             width: 250px;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            height: 44px;
+            box-sizing: border-box;
         }
-
         .search-box:focus {
             outline: none;
             border-color: var(--accent);
@@ -224,7 +309,7 @@
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 0 20px;
             background: var(--accent);
             color: var(--white);
             border: none;
@@ -235,6 +320,8 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            height: 44px;
+            box-sizing: border-box;
         }
 
         .btn:hover {
@@ -393,7 +480,7 @@
             background: var(--white);
             border-radius: 12px;
             box-shadow: var(--shadow);
-            overflow: hidden;
+            overflow-x: auto;
             margin-bottom: 30px;
         }
 
@@ -401,14 +488,39 @@
             padding: 20px;
             border-bottom: 1px solid var(--light);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 24px;
         }
-
+        .table-header > div {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1 1 0;
+            min-width: 0;
+        }
         .table-title {
             font-size: 1.1em;
             font-weight: 600;
             color: var(--primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        .table-header input[type="text"], .table-header .search-box {
+            min-width: 0;
+            max-width: 250px;
+            flex: 0 1 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .table-header .create-btn {
+            flex-shrink: 0;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         table {
@@ -426,11 +538,20 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             border-bottom: 2px solid var(--light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
         }
 
         td {
             padding: 16px 20px;
             border-bottom: 1px solid var(--light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+            cursor: pointer;
         }
 
         tr:hover {
@@ -623,39 +744,36 @@
                 padding: 0;
                 position: absolute;
             }
-
             .sidebar.active {
                 width: 260px;
             }
-
             .main-content {
                 margin-left: 0;
             }
-
             .page-content {
                 padding: 20px;
             }
-
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
-
             .topbar {
                 flex-direction: column;
                 gap: 15px;
-                align-items: flex-start;
+                align-items: stretch;
             }
-
+            .topbar-title h1 {
+                max-width: 100%;
+            }
             .search-box {
                 width: 100%;
+                max-width: 100%;
             }
-
             table {
                 font-size: 0.9em;
             }
-
             td, th {
                 padding: 10px;
+                max-width: 100px;
             }
         }
 
@@ -772,6 +890,35 @@
             }
         }
     </style>
+    <!-- Responsive modal for mobile -->
+    <style>
+    @media (max-width: 600px) {
+        .modal-content {
+            width: 100vw !important;
+            max-width: 100vw !important;
+            min-height: 40vh;
+            max-height: 90vh;
+            border-radius: 16px 16px 0 0 !important;
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            top: auto;
+            right: 0;
+            margin: 0;
+            padding: 24px 12px !important;
+            box-shadow: 0 -2px 16px rgba(44,62,80,0.12);
+            animation: slideUpModal 0.3s cubic-bezier(.4,0,.2,1);
+        }
+        .modal {
+            align-items: flex-end !important;
+            justify-content: center;
+        }
+    }
+    @keyframes slideUpModal {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+    </style>
 </head>
 <body>
     <!-- Login Page -->
@@ -808,6 +955,10 @@
         </div>
     </div>
 
+    <!-- Hamburger for mobile/tablet -->
+    <button class="hamburger" id="hamburgerMenu" aria-label="Open menu" style="display: none; position: fixed; top: 18px; left: 18px; z-index: 4000; background: var(--white); color: var(--accent); border-radius: 8px; box-shadow: var(--shadow); font-size: 2em;">
+        <i class="fas fa-bars"></i>
+    </button>
     <!-- Dashboard (Hidden until login) -->
     <div id="dashboardApp" class="dashboard-wrapper" style="display: none;">
         <!-- Sidebar Navigation -->
@@ -1005,13 +1156,16 @@
                 <section id="events" class="content-section">
                     <div class="table-wrapper">
                         <div class="table-header">
-                            <div style="display: flex; gap: 15px; align-items: center; flex: 1;">
-                                <h3 class="table-title">Events Management</h3>
-                                <input type="text" id="eventsSearchInput" placeholder="Search events..." onkeyup="filterEvents()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px;">
+                            <div style="display: flex; align-items: center; gap: 15px; width: 100%; min-width:0;">
+                                <span class="table-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.1em; font-weight: 600; color: var(--primary); white-space: nowrap;">
+                                    <i class="fas fa-calendar-alt" style="color: var(--accent); font-size: 1.3em;"></i>
+                                    <span class="table-title-label">Events Management</span>
+                                </span>
+                                <input type="text" id="eventsSearchInput" placeholder="Search events..." onkeyup="filterEvents()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px; min-width:0;">
+                                <button class="btn create-btn" onclick="openEventModal()" style="margin-left:auto;">
+                                    <i class="fas fa-plus"></i> <span class="btn-label">Create Event</span>
+                                </button>
                             </div>
-                            <button class="btn" onclick="openEventModal()">
-                                <i class="fas fa-plus"></i> Create Event
-                            </button>
                         </div>
                         <table>
                             <thead>
@@ -1043,13 +1197,16 @@
                 <section id="members" class="content-section">
                     <div class="table-wrapper">
                         <div class="table-header">
-                            <div style="display: flex; gap: 15px; align-items: center; flex: 1;">
-                                <h3 class="table-title">Members Directory</h3>
-                                <input type="text" id="membersSearchInput" placeholder="Search members..." onkeyup="filterMembers()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px;">
+                            <div style="display: flex; align-items: center; gap: 15px; width: 100%; min-width:0;">
+                                <span class="table-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.1em; font-weight: 600; color: var(--primary); white-space: nowrap;">
+                                    <i class="fas fa-users" style="color: var(--accent); font-size: 1.3em;"></i>
+                                    <span class="table-title-label">Members Directory</span>
+                                </span>
+                                <input type="text" id="membersSearchInput" placeholder="Search members..." onkeyup="filterMembers()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px; min-width:0;">
+                                <button class="btn create-btn" onclick="openMemberModal()" style="margin-left:auto;">
+                                    <i class="fas fa-plus"></i> <span class="btn-label">Add Member</span>
+                                </button>
                             </div>
-                            <button class="btn" onclick="openMemberModal()">
-                                <i class="fas fa-plus"></i> Add Member
-                            </button>
                         </div>
                         <table>
                             <thead>
@@ -1081,13 +1238,16 @@
                 <section id="registrations" class="content-section">
                     <div class="table-wrapper">
                         <div class="table-header">
-                            <div style="display: flex; gap: 15px; align-items: center; flex: 1;">
-                                <h3 class="table-title">Event Registrations</h3>
-                                <input type="text" id="registrationsSearchInput" placeholder="Search registrations..." onkeyup="filterRegistrations()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px;">
+                            <div style="display: flex; align-items: center; gap: 15px; width: 100%; min-width:0;">
+                                <span class="table-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.1em; font-weight: 600; color: var(--primary); white-space: nowrap;">
+                                    <i class="fas fa-clipboard-list" style="color: var(--accent); font-size: 1.3em;"></i>
+                                    <span class="table-title-label">Event Registrations</span>
+                                </span>
+                                <input type="text" id="registrationsSearchInput" placeholder="Search registrations..." onkeyup="filterRegistrations()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px; min-width:0;">
+                                <button class="btn create-btn" onclick="openRegistrationModal()" style="margin-left:auto;">
+                                    <i class="fas fa-plus"></i> <span class="btn-label">Register Member</span>
+                                </button>
                             </div>
-                            <button class="btn" onclick="openRegistrationModal()">
-                                <i class="fas fa-plus"></i> Register Member
-                            </button>
                         </div>
                         <table>
                             <thead>
@@ -1148,13 +1308,16 @@
 
                     <div class="table-wrapper">
                         <div class="table-header">
-                            <div style="display: flex; gap: 15px; align-items: center; flex: 1;">
-                                <h3 class="table-title">Donation Records</h3>
-                                <input type="text" id="donationsSearchInput" placeholder="Search donations..." onkeyup="filterDonations()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px;">
+                            <div style="display: flex; align-items: center; gap: 15px; width: 100%; min-width:0;">
+                                <span class="table-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.1em; font-weight: 600; color: var(--primary); white-space: nowrap;">
+                                    <i class="fas fa-hand-holding-heart" style="color: var(--accent); font-size: 1.3em;"></i>
+                                    <span class="table-title-label">Donation Records</span>
+                                </span>
+                                <input type="text" id="donationsSearchInput" placeholder="Search donations..." onkeyup="filterDonations()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px; min-width:0;">
+                                <button class="btn create-btn" onclick="openDonationModal()" style="margin-left:auto;">
+                                    <i class="fas fa-plus"></i> <span class="btn-label">Record Donation</span>
+                                </button>
                             </div>
-                            <button class="btn" onclick="openDonationModal()">
-                                <i class="fas fa-plus"></i> Record Donation
-                            </button>
                         </div>
                         <table>
                             <thead>
@@ -1186,9 +1349,12 @@
                 <section id="birthdays" class="content-section">
                     <div class="table-wrapper">
                         <div class="table-header">
-                            <div style="display: flex; gap: 15px; align-items: center; flex: 1;">
-                                <h3 class="table-title">Birthday Calendar</h3>
-                                <input type="text" id="birthdaysSearchInput" placeholder="Search birthdays..." onkeyup="filterBirthdays()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px;">
+                            <div style="display: flex; align-items: center; gap: 15px; width: 100%; min-width:0;">
+                                <span class="table-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.1em; font-weight: 600; color: var(--primary); white-space: nowrap;">
+                                    <i class="fas fa-birthday-cake" style="color: var(--accent); font-size: 1.3em;"></i>
+                                    <span class="table-title-label">Birthday Calendar</span>
+                                </span>
+                                <input type="text" id="birthdaysSearchInput" placeholder="Search birthdays..." onkeyup="filterBirthdays()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px; min-width:0;">
                             </div>
                         </div>
                         <table>
@@ -1220,13 +1386,16 @@
                 <section id="users" class="content-section">
                     <div class="table-wrapper">
                         <div class="table-header">
-                            <div style="display: flex; gap: 15px; align-items: center; flex: 1;">
-                                <h3 class="table-title">User Management</h3>
-                                <input type="text" id="usersSearchInput" placeholder="Search users..." onkeyup="filterUsers()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px;">
+                            <div style="display: flex; align-items: center; gap: 15px; width: 100%; min-width:0;">
+                                <span class="table-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.1em; font-weight: 600; color: var(--primary); white-space: nowrap;">
+                                    <i class="fas fa-users-cog" style="color: var(--accent); font-size: 1.3em;"></i>
+                                    <span class="table-title-label">User Management</span>
+                                </span>
+                                <input type="text" id="usersSearchInput" placeholder="Search users..." onkeyup="filterUsers()" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95em; flex: 0 1 250px; min-width:0;">
+                                <button class="btn create-btn" onclick="openUserModal()" style="margin-left:auto;">
+                                    <i class="fas fa-plus"></i> <span class="btn-label">Add User</span>
+                                </button>
                             </div>
-                            <button class="btn" onclick="openUserModal()">
-                                <i class="fas fa-plus"></i> Add User
-                            </button>
                         </div>
                         <table>
                             <thead>
@@ -1579,6 +1748,48 @@
     </div>
 
     <script src="app.js"></script>
+        <script>
+        // Show tooltip only if table cell is visually truncated, including after dynamic updates and on mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            function updateCellTooltip(td) {
+                if (td.offsetWidth < td.scrollWidth) {
+                    td.setAttribute('title', td.textContent.trim());
+                } else {
+                    td.removeAttribute('title');
+                }
+            }
+            function attachTooltipListenersToCells() {
+                document.querySelectorAll('td').forEach(function(td) {
+                    td.removeEventListener('mouseenter', td._tooltipHandler);
+                    td.removeEventListener('focus', td._tooltipHandler);
+                    td.removeEventListener('touchstart', td._tooltipHandlerTouch);
+                    td.removeEventListener('touchend', td._tooltipHandlerTouch);
+                    td._tooltipHandler = function() { updateCellTooltip(td); };
+                    td._tooltipHandlerTouch = function() { updateCellTooltip(td); };
+                    td.addEventListener('mouseenter', td._tooltipHandler);
+                    td.addEventListener('focus', td._tooltipHandler);
+                    td.addEventListener('touchstart', td._tooltipHandlerTouch);
+                    td.addEventListener('touchend', td._tooltipHandlerTouch);
+                });
+            }
+            function setAllTruncatedTitles() {
+                document.querySelectorAll('td').forEach(function(td) {
+                    updateCellTooltip(td);
+                });
+            }
+            attachTooltipListenersToCells();
+            setAllTruncatedTitles();
+            window.addEventListener('resize', setAllTruncatedTitles);
+            // Observe table changes for dynamic content
+            const observer = new MutationObserver(function() {
+                attachTooltipListenersToCells();
+                setAllTruncatedTitles();
+            });
+            document.querySelectorAll('table').forEach(function(table) {
+                observer.observe(table, { childList: true, subtree: true });
+            });
+        });
+        </script>
     <script>
     // Hamburger menu toggle for mobile/tablet
     document.addEventListener('DOMContentLoaded', function() {

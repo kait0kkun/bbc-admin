@@ -944,6 +944,45 @@ async function validateAndSaveDonation(event) {
 
 // ============================================
 // MEMBERS
+// Placeholder for view event details
+function viewEventDetails(eventId) {
+    const event = events.find(e => e.id === eventId);
+    if (!event) return;
+
+    // Populate modal fields (create if not present)
+    let modal = document.getElementById('eventDetailsModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'eventDetailsModal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-calendar-alt" style="margin-right: 12px; color: #e67e22;"></i>Event Details</h2>
+                    <button class="close-btn" onclick="document.getElementById('eventDetailsModal').classList.remove('active')">&times;</button>
+                </div>
+                <div style="padding: 20px; background: var(--lighter); border-radius: 8px;">
+                    <div style="margin-bottom: 16px;"><label>Name</label><p id="viewEventName"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Description</label><p id="viewEventDescription"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Date</label><p id="viewEventDate"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Time</label><p id="viewEventTime"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Location</label><p id="viewEventLocation"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Type</label><p id="viewEventType"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Capacity</label><p id="viewEventCapacity"></p></div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    document.getElementById('viewEventName').textContent = event.name || '-';
+    document.getElementById('viewEventDescription').textContent = event.description || '-';
+    document.getElementById('viewEventDate').textContent = event.date || '-';
+    document.getElementById('viewEventTime').textContent = event.time || '-';
+    document.getElementById('viewEventLocation').textContent = event.location || '-';
+    document.getElementById('viewEventType').textContent = event.event_type || '-';
+    document.getElementById('viewEventCapacity').textContent = event.capacity || '-';
+    modal.classList.add('active');
+}
 // ============================================
 
 async function loadMembers() {
@@ -985,10 +1024,10 @@ function renderMembers() {
             <td>${member.ministry || '-'}</td>
             <td><span class="status-badge status-approved">Active</span></td>
             <td style="display: flex; gap: 10px; justify-content: center;">
-                <button class="btn btn-sm" onclick="viewMemberDetails('${member.id}')" title="View Member" style="padding: 6px 10px; width: auto; background: #3498db;">
+                <button class="btn btn-sm" onclick="viewMemberDetails('${member.id}')" title="View Member" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #3498db;">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button class="btn btn-sm btn-danger" onclick="deleteMember('${member.id}')" title="Delete Member" style="padding: 6px 10px; width: auto;">
+                <button class="btn btn-sm btn-danger" onclick="deleteMember('${member.id}')" title="Delete Member" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center;">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
@@ -1132,9 +1171,12 @@ function renderEvents() {
                 <td>${event.time || '-'}</td>
                 <td>${event.location || '-'}</td>
                 <td><span class="status-badge status-${status}">${statusLabel}</span></td>
-                <td>
-                    <button class="btn btn-sm btn-danger" onclick="deleteEvent('${event.id}')">
-                        <i class="fas fa-trash"></i> Delete
+                <td style="display: flex; gap: 10px; justify-content: center;">
+                    <button class="btn btn-sm" onclick="viewEventDetails('${event.id}')" title="View Event" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #3498db;">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteEvent('${event.id}')" title="Delete Event" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center;">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </td>
             </tr>
@@ -1180,6 +1222,38 @@ async function deleteEvent(id) {
 
 // ============================================
 // REGISTRATIONS
+// Placeholder for view registration details
+function viewRegistrationDetails(regId) {
+    const reg = registrations.find(r => r.id === regId);
+    if (!reg) return;
+
+    let modal = document.getElementById('registrationDetailsModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'registrationDetailsModal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-clipboard-list" style="margin-right: 12px; color: #e67e22;"></i>Registration Details</h2>
+                    <button class="close-btn" onclick="document.getElementById('registrationDetailsModal').classList.remove('active')">&times;</button>
+                </div>
+                <div style="padding: 20px; background: var(--lighter); border-radius: 8px;">
+                    <div style="margin-bottom: 16px;"><label>Event</label><p id="viewRegEvent"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Member</label><p id="viewRegMember"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Registered On</label><p id="viewRegDate"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Status</label><p id="viewRegStatus"></p></div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    document.getElementById('viewRegEvent').textContent = reg.event?.name || '-';
+    document.getElementById('viewRegMember').textContent = reg.member?.name || '-';
+    document.getElementById('viewRegDate').textContent = reg.created_at ? new Date(reg.created_at).toLocaleDateString() : '-';
+    document.getElementById('viewRegStatus').textContent = 'Approved';
+    modal.classList.add('active');
+}
 // ============================================
 
 async function loadRegistrations() {
@@ -1223,9 +1297,12 @@ function renderRegistrations() {
                 <td>${memberName}</td>
                 <td>${registeredDate}</td>
                 <td><span class="status-badge status-approved">Approved</span></td>
-                <td>
-                    <button class="btn btn-sm btn-danger" onclick="deleteRegistration('${reg.id}')">
-                        <i class="fas fa-trash"></i> Delete
+                <td style="display: flex; gap: 10px; justify-content: center;">
+                    <button class="btn btn-sm" onclick="viewRegistrationDetails('${reg.id}')" title="View Registration" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #3498db;">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteRegistration('${reg.id}')" title="Delete Registration" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center;">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </td>
             </tr>
@@ -1285,6 +1362,40 @@ async function deleteRegistration(id) {
 
 // ============================================
 // DONATIONS
+// Placeholder for view donation details
+function viewDonationDetails(donationId) {
+    const donation = donations.find(d => d.id === donationId);
+    if (!donation) return;
+
+    let modal = document.getElementById('donationDetailsModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'donationDetailsModal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-hand-holding-heart" style="margin-right: 12px; color: #e67e22;"></i>Donation Details</h2>
+                    <button class="close-btn" onclick="document.getElementById('donationDetailsModal').classList.remove('active')">&times;</button>
+                </div>
+                <div style="padding: 20px; background: var(--lighter); border-radius: 8px;">
+                    <div style="margin-bottom: 16px;"><label>Date</label><p id="viewDonationDate"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Donor</label><p id="viewDonationDonor"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Amount</label><p id="viewDonationAmount"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Type</label><p id="viewDonationType"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Notes</label><p id="viewDonationNotes"></p></div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    document.getElementById('viewDonationDate').textContent = donation.created_at ? new Date(donation.created_at).toLocaleDateString() : '-';
+    document.getElementById('viewDonationDonor').textContent = donation.donor_name || '-';
+    document.getElementById('viewDonationAmount').textContent = donation.amount ? '₱' + parseFloat(donation.amount).toFixed(2) : '-';
+    document.getElementById('viewDonationType').textContent = donation.donation_type || '-';
+    document.getElementById('viewDonationNotes').textContent = donation.notes || '-';
+    modal.classList.add('active');
+}
 // ============================================
 
 async function loadDonations() {
@@ -1334,9 +1445,12 @@ function renderDonations() {
                 <td>₱${parseFloat(donation.amount).toFixed(2)}</td>
                 <td>${donation.donation_type || 'General'}</td>
                 <td>${donation.notes || '-'}</td>
-                <td>
-                    <button class="btn btn-sm btn-danger" onclick="deleteDonation('${donation.id}')">
-                        <i class="fas fa-trash"></i> Delete
+                <td style="display: flex; gap: 10px; justify-content: center;">
+                    <button class="btn btn-sm" onclick="viewDonationDetails('${donation.id}')" title="View Donation" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #3498db;">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteDonation('${donation.id}')" title="Delete Donation" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center;">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </td>
             </tr>
@@ -1456,6 +1570,38 @@ function renderBirthdays() {
 
 // ============================================
 // USERS MANAGEMENT
+// Placeholder for view user details
+function viewUserDetails(userId) {
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
+
+    let modal = document.getElementById('userDetailsModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'userDetailsModal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-users-cog" style="margin-right: 12px; color: #e67e22;"></i>User Details</h2>
+                    <button class="close-btn" onclick="document.getElementById('userDetailsModal').classList.remove('active')">&times;</button>
+                </div>
+                <div style="padding: 20px; background: var(--lighter); border-radius: 8px;">
+                    <div style="margin-bottom: 16px;"><label>Name</label><p id="viewUserName"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Email</label><p id="viewUserEmail"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Role</label><p id="viewUserRole"></p></div>
+                    <div style="margin-bottom: 16px;"><label>Created</label><p id="viewUserCreated"></p></div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    document.getElementById('viewUserName').textContent = user.name || '-';
+    document.getElementById('viewUserEmail').textContent = user.email || '-';
+    document.getElementById('viewUserRole').textContent = user.role || '-';
+    document.getElementById('viewUserCreated').textContent = user.created_at ? new Date(user.created_at).toLocaleDateString() : '-';
+    modal.classList.add('active');
+}
 // ============================================
 
 let users = [];
@@ -1503,10 +1649,13 @@ function renderUsers() {
                 <td><span class="status-badge ${user.role === 'admin' ? 'status-approved' : 'status-pending'}">${user.role}</span></td>
                 <td>${created}</td>
                 <td style="display: flex; gap: 10px; justify-content: center;">
-                    <button class="btn btn-sm" onclick="editUser('${user.id}')" title="Edit User" style="padding: 6px 10px; width: auto; background: #3498db;">
+                    <button class="btn btn-sm" onclick="viewUserDetails('${user.id}')" title="View User" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center; background: #3498db;">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm" onclick="editUser('${user.id}')" title="Edit User" style="padding: 6px 10px; width: auto; background: #f1c40f; color: #fff;">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')" title="Delete User" style="padding: 6px 10px; width: auto;">
+                    <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')" title="Delete User" style="padding: 6px 10px; width: 36px; min-width: 36px; justify-content: center; display: flex; align-items: center;">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
