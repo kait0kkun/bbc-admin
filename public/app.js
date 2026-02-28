@@ -31,7 +31,7 @@ function checkAuthStatus() {
     const token = localStorage.getItem('authToken');
     const loginPage = document.getElementById('loginPage');
     const dashboardApp = document.getElementById('dashboardApp');
-    
+
     if (token) {
         // User is logged in
         loginPage.style.display = 'none';
@@ -48,7 +48,7 @@ function clearLoginErrors() {
     const loginError = document.getElementById('loginError');
     const emailError = document.getElementById('error-loginEmail');
     const passwordError = document.getElementById('error-loginPassword');
-    
+
     if (loginError) {
         loginError.style.display = 'none';
         loginError.querySelector('span').textContent = '';
@@ -74,10 +74,10 @@ function showLoginError(message) {
 async function handleLogin(event) {
     event.preventDefault();
     clearLoginErrors();
-    
+
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
-    
+
     // Validate
     let isValid = true;
     if (!email) {
@@ -92,24 +92,24 @@ async function handleLogin(event) {
         error.style.display = 'flex';
         isValid = false;
     }
-    
+
     if (!isValid) return;
-    
+
     try {
         const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             localStorage.setItem('authToken', data.token);
             authToken = data.token;
-            
+
             // Clear form
             document.getElementById('loginForm').reset();
-            
+
             // Show dashboard
             checkAuthStatus();
         } else {
@@ -133,16 +133,16 @@ function showLogoutConfirm() {
 function performLogout() {
     localStorage.removeItem('authToken');
     authToken = null;
-    
+
     // Clear sensitive data
     members = [];
     events = [];
     registrations = [];
     donations = [];
-    
+
     // Show success notification
     showNotification('You have been signed out successfully', 'success');
-    
+
     // Redirect to login after brief delay
     setTimeout(() => {
         checkAuthStatus();
@@ -187,10 +187,10 @@ function switchSection(sectionName) {
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
     });
-    
+
     // Show selected section
     document.getElementById(sectionName).classList.add('active');
-    
+
     // Update nav menu
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
@@ -202,7 +202,7 @@ function switchSection(sectionName) {
     if (window.innerWidth <= 1024 && sidebar) {
         sidebar.classList.remove('active');
     }
-    
+
     // Update page title
     const titles = {
         dashboard: 'Dashboard',
@@ -214,7 +214,7 @@ function switchSection(sectionName) {
         users: 'User Management'
     };
     document.getElementById('pageTitle').textContent = titles[sectionName] || sectionName;
-    
+
     // Special rendering for birthdays
     if (sectionName === 'birthdays') {
         renderBirthdays();
@@ -229,7 +229,7 @@ function calculateRegistrationData(year) {
     // Calculate registrations by month for the selected year
     const monthData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+
     // Count registrations for each month in the selected year
     registrations.forEach(reg => {
         const regDate = new Date(reg.created_at);
@@ -237,7 +237,7 @@ function calculateRegistrationData(year) {
             monthData[regDate.getMonth()]++;
         }
     });
-    
+
     return { labels, data: monthData };
 }
 
@@ -245,7 +245,7 @@ function calculateDonationData(year) {
     // Calculate donations by month for the selected year
     const monthData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+
     // Sum donations for each month in the selected year
     donations.forEach(donation => {
         const donDate = new Date(donation.created_at);
@@ -253,7 +253,7 @@ function calculateDonationData(year) {
             monthData[donDate.getMonth()] += parseFloat(donation.amount) || 0;
         }
     });
-    
+
     return { labels, data: monthData };
 }
 
@@ -271,7 +271,7 @@ function initCharts() {
         donationChart.destroy();
         donationChart = null;
     }
-    
+
     const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -347,25 +347,25 @@ function initCharts() {
 function populateYearSelectors() {
     // Get all years from registrations and donations
     const years = new Set();
-    
+
     registrations.forEach(reg => {
         const year = new Date(reg.created_at).getFullYear();
         years.add(year);
     });
-    
+
     donations.forEach(don => {
         const year = new Date(don.created_at).getFullYear();
         years.add(year);
     });
-    
+
     // Add current year if no data exists
     if (years.size === 0) {
         years.add(new Date().getFullYear());
     }
-    
+
     // Sort years in descending order
     const sortedYears = Array.from(years).sort((a, b) => b - a);
-    
+
     // Populate registration year selector
     const regYearSelect = document.getElementById('registrationYearSelect');
     if (regYearSelect) {
@@ -373,7 +373,7 @@ function populateYearSelectors() {
             .map(year => `<option value="${year}" ${year === selectedRegistrationYear ? 'selected' : ''}>${year}</option>`)
             .join('');
     }
-    
+
     // Populate donation year selector
     const donYearSelect = document.getElementById('donationYearSelect');
     if (donYearSelect) {
@@ -386,14 +386,14 @@ function populateYearSelectors() {
 function handleYearChange() {
     const regYearSelect = document.getElementById('registrationYearSelect');
     const donYearSelect = document.getElementById('donationYearSelect');
-    
+
     if (regYearSelect) {
         selectedRegistrationYear = parseInt(regYearSelect.value);
     }
     if (donYearSelect) {
         selectedDonationYear = parseInt(donYearSelect.value);
     }
-    
+
     // Reinitialize charts with new year selection
     initCharts();
 }
@@ -411,14 +411,14 @@ function updateDashboard() {
 
 function updateStats() {
     document.getElementById('totalMembers').textContent = members.length;
-    
+
     // Calculate upcoming events
     const today = new Date();
     const upcomingCount = events.filter(e => new Date(e.date) >= today).length;
     document.getElementById('upcomingEvents').textContent = upcomingCount;
-    
+
     document.getElementById('totalRegistrations').textContent = registrations.length;
-    
+
     // Calculate monthly donations
     const today2 = new Date();
     const monthStart = new Date(today2.getFullYear(), today2.getMonth(), 1);
@@ -426,7 +426,7 @@ function updateStats() {
         .filter(d => new Date(d.created_at) >= monthStart)
         .reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0);
     document.getElementById('monthlyDonations').textContent = '₱' + monthlyTotal.toLocaleString();
-    
+
     // Calculate donation change percentage
     calculateDonationChange();
 }
@@ -435,7 +435,7 @@ function calculateDonationChange() {
     const today = new Date();
     const currentMonth = today.getMonth();
     const currentYear = today.getFullYear();
-    
+
     // This month
     const monthStart = new Date(currentYear, currentMonth, 1);
     const thisMonthTotal = donations
@@ -444,7 +444,7 @@ function calculateDonationChange() {
             return donDate >= monthStart && donDate.getMonth() === currentMonth && donDate.getFullYear() === currentYear;
         })
         .reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0);
-    
+
     // Last month
     const lastMonthStart = new Date(currentYear, currentMonth - 1, 1);
     const lastMonthEnd = new Date(currentYear, currentMonth, 0);
@@ -454,11 +454,11 @@ function calculateDonationChange() {
             return donDate >= lastMonthStart && donDate <= lastMonthEnd;
         })
         .reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0);
-    
+
     // Calculate percentage change
     let percentageChange = 0;
     let isIncrease = true;
-    
+
     if (lastMonthTotal === 0) {
         // If last month was 0, any amount this month is a 100% increase
         percentageChange = thisMonthTotal > 0 ? 100 : 0;
@@ -467,11 +467,11 @@ function calculateDonationChange() {
         percentageChange = Math.round(((thisMonthTotal - lastMonthTotal) / lastMonthTotal) * 100);
         isIncrease = thisMonthTotal >= lastMonthTotal;
     }
-    
+
     // Update UI
     const indicator = document.getElementById('donationChangeIndicator');
     const text = document.getElementById('donationChangeText');
-    
+
     if (indicator && text) {
         indicator.className = 'stat-change ' + (isIncrease ? 'up' : 'down');
         const icon = indicator.querySelector('i');
@@ -489,7 +489,7 @@ function renderUpcomingEvents() {
         .filter(e => new Date(e.date) >= today)
         .sort((a, b) => new Date(a.date) - new Date(b.date))
         .slice(0, 5);
-    
+
     if (upcoming.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
@@ -500,7 +500,7 @@ function renderUpcomingEvents() {
         `;
         return;
     }
-    
+
     container.innerHTML = `
         <table style="width: 100%;">
             <tbody>
@@ -521,11 +521,11 @@ function renderUpcomingEvents() {
 
 function renderUpcomingBirthdays() {
     const container = document.getElementById('upcomingBirthdaysList');
-    
+
     // Filter members with birthdays in current week
     const today = new Date();
     const weekEnd = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-    
+
     const upcomingBirthdays = members
         .filter(m => {
             if (!m.birthday) return false;
@@ -538,7 +538,7 @@ function renderUpcomingBirthdays() {
             const bDate = new Date(b.birthday);
             return (aDate.getMonth() - bDate.getMonth()) || (aDate.getDate() - bDate.getDate());
         });
-    
+
     if (upcomingBirthdays.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
@@ -549,13 +549,13 @@ function renderUpcomingBirthdays() {
         `;
         return;
     }
-    
+
     container.innerHTML = `
         <table style="width: 100%;">
             <tbody>
                 ${upcomingBirthdays.map(member => {
-                    const birthday = new Date(member.birthday);
-                    return `
+        const birthday = new Date(member.birthday);
+        return `
                         <tr>
                             <td style="padding: 12px;">
                                 <div style="font-weight: 600; color: #2c3e50;">
@@ -568,7 +568,7 @@ function renderUpcomingBirthdays() {
                             </td>
                         </tr>
                     `;
-                }).join('')}
+    }).join('')}
             </tbody>
         </table>
     `;
@@ -586,10 +586,10 @@ function showNotification(message, type = 'info') {
         <span>${message}</span>
     `;
     document.body.appendChild(notification);
-    
+
     // Show notification
     setTimeout(() => notification.classList.add('show'), 10);
-    
+
     // Auto remove after 3 seconds
     setTimeout(() => {
         notification.classList.remove('show');
@@ -606,19 +606,19 @@ let pendingDeleteId = null;
 
 function showDeleteConfirm(message, type, id) {
     document.getElementById('deleteConfirmMessage').textContent = message;
-    
+
     // Update modal title based on action type
     let titleText = 'Confirm Delete';
     let btnText = '<i class="fas fa-trash"></i> Delete';
-    
+
     if (type === 'logout') {
         titleText = 'Sign Out';
         btnText = '<i class="fas fa-sign-out-alt"></i> Sign Out';
     }
-    
+
     document.getElementById('confirmModalTitle').innerHTML = `<i class="fas fa-exclamation-triangle" style="margin-right: 12px; color: #e74c3c;"></i>${titleText}`;
     document.getElementById('confirmBtn').innerHTML = btnText;
-    
+
     pendingDeleteAction = type;
     pendingDeleteId = id;
     document.getElementById('deleteConfirmModal').classList.add('active');
@@ -637,16 +637,16 @@ async function confirmDelete() {
         performLogout();
         return;
     }
-    
+
     if (!pendingDeleteAction || !pendingDeleteId) return;
-    
+
     try {
         let response;
         let errorMessage = '';
-        
-        switch(pendingDeleteAction) {
+
+        switch (pendingDeleteAction) {
             case 'member':
-                response = await fetch(`${API_URL}/members/${pendingDeleteId}`, { 
+                response = await fetch(`${API_URL}/members/${pendingDeleteId}`, {
                     method: 'DELETE',
                     headers: getHeaders()
                 });
@@ -660,7 +660,7 @@ async function confirmDelete() {
                 }
                 break;
             case 'event':
-                response = await fetch(`${API_URL}/events/${pendingDeleteId}`, { 
+                response = await fetch(`${API_URL}/events/${pendingDeleteId}`, {
                     method: 'DELETE',
                     headers: getHeaders()
                 });
@@ -674,7 +674,7 @@ async function confirmDelete() {
                 }
                 break;
             case 'registration':
-                response = await fetch(`${API_URL}/registrations/${pendingDeleteId}`, { 
+                response = await fetch(`${API_URL}/registrations/${pendingDeleteId}`, {
                     method: 'DELETE',
                     headers: getHeaders()
                 });
@@ -687,7 +687,7 @@ async function confirmDelete() {
                 }
                 break;
             case 'donation':
-                response = await fetch(`${API_URL}/donations/${pendingDeleteId}`, { 
+                response = await fetch(`${API_URL}/donations/${pendingDeleteId}`, {
                     method: 'DELETE',
                     headers: getHeaders()
                 });
@@ -701,7 +701,7 @@ async function confirmDelete() {
                 }
                 break;
             case 'user':
-                response = await fetch(`${API_URL}/users/${pendingDeleteId}`, { 
+                response = await fetch(`${API_URL}/users/${pendingDeleteId}`, {
                     method: 'DELETE',
                     headers: getHeaders()
                 });
@@ -742,7 +742,7 @@ function clearFormErrors(formId) {
 function showFieldError(fieldName, formId, message) {
     const errorElement = document.getElementById(`error-${fieldName}`);
     const form = document.getElementById(formId);
-    
+
     if (errorElement && form) {
         const input = form.querySelector(`[name="${fieldName}"]`);
         if (input) {
@@ -756,63 +756,63 @@ function showFieldError(fieldName, formId, message) {
 function validateMember(data) {
     clearFormErrors('memberForm');
     let isValid = true;
-    
+
     if (!data.name || data.name.trim() === '') {
         showFieldError('name', 'memberForm', 'Full Name is required');
         isValid = false;
     }
-    
+
     return isValid;
 }
 
 function validateEvent(data) {
     clearFormErrors('eventForm');
     let isValid = true;
-    
+
     if (!data.name || data.name.trim() === '') {
         showFieldError('eventName', 'eventForm', 'Event Name is required');
         isValid = false;
     }
-    
+
     if (!data.date || data.date.trim() === '') {
         showFieldError('eventDate', 'eventForm', 'Date is required');
         isValid = false;
     }
-    
+
     return isValid;
 }
 
 function validateRegistration(data) {
     clearFormErrors('registrationForm');
     let isValid = true;
-    
+
     if (!data.eventId || data.eventId.trim() === '') {
         showFieldError('eventId', 'registrationForm', 'Please select an event');
         isValid = false;
     }
-    
+
     if (!data.memberId || data.memberId.trim() === '') {
         showFieldError('memberId', 'registrationForm', 'Please select a member');
         isValid = false;
     }
-    
+
     return isValid;
 }
 
 function validateDonation(data) {
     clearFormErrors('donationForm');
     let isValid = true;
-    
+
     if (!data.donation_date || data.donation_date.trim() === '') {
         showFieldError('donationDate', 'donationForm', 'Date is required');
         isValid = false;
     }
-    
+
     if (!data.amount || parseFloat(data.amount) <= 0) {
         showFieldError('amount', 'donationForm', 'Amount must be greater than 0');
         isValid = false;
     }
-    
+
     return isValid;
 }
 
@@ -863,11 +863,11 @@ async function validateAndSaveEvent(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData);
-    
+
     if (!validateEvent(data)) {
         return;
     }
-    
+
     try {
         const response = await fetch(`${API_URL}/events`, {
             method: 'POST',
@@ -894,11 +894,11 @@ async function validateAndSaveRegistration(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData);
-    
+
     if (!validateRegistration(data)) {
         return;
     }
-    
+
     try {
         const response = await fetch(`${API_URL}/registrations`, {
             method: 'POST',
@@ -933,11 +933,11 @@ async function validateAndSaveDonation(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData);
-    
+
     if (!validateDonation(data)) {
         return;
     }
-    
+
     try {
         const response = await fetch(`${API_URL}/donations`, {
             method: 'POST',
@@ -1008,17 +1008,21 @@ async function loadMembers() {
         const response = await fetch(`${API_URL}/members`, {
             headers: getHeaders()
         });
+        if (response.status === 401 || response.status === 403) return performLogout();
+        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
         members = await response.json();
         renderMembers();
         updateMemberSelect();
     } catch (error) {
         console.error('Error loading members:', error);
+        members = [];
+        renderMembers();
     }
 }
 
 function renderMembers() {
     const container = document.getElementById('membersList');
-    
+
     if (members.length === 0) {
         container.innerHTML = `
             <tr>
@@ -1129,13 +1133,13 @@ function viewMemberDetails(memberId) {
     document.getElementById('viewMemberPhone').textContent = member.phone || 'Not provided';
     document.getElementById('viewMemberGender').textContent = member.gender || 'Not provided';
     document.getElementById('viewMemberMinistry').textContent = member.ministry || 'Not assigned';
-    
+
     const birthday = member.birthday ? new Date(member.birthday).toLocaleDateString() : 'Not provided';
     document.getElementById('viewMemberBirthday').textContent = birthday;
-    
+
     const joinDate = member.join_date ? new Date(member.join_date).toLocaleDateString() : 'Not provided';
     document.getElementById('viewMemberJoinDate').textContent = joinDate;
-    
+
     document.getElementById('viewMemberStatus').textContent = member.status || 'Active';
     document.getElementById('viewMemberNotes').textContent = member.notes || 'No notes';
 
@@ -1169,17 +1173,21 @@ async function loadEvents() {
         const response = await fetch(`${API_URL}/events`, {
             headers: getHeaders()
         });
+        if (response.status === 401 || response.status === 403) return performLogout();
+        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
         events = await response.json();
         renderEvents();
         updateEventSelect();
     } catch (error) {
         console.error('Error loading events:', error);
+        events = [];
+        renderEvents();
     }
 }
 
 function renderEvents() {
     const container = document.getElementById('eventsList');
-    
+
     if (events.length === 0) {
         container.innerHTML = `
             <tr>
@@ -1200,7 +1208,7 @@ function renderEvents() {
         const eventDate = new Date(event.date);
         let status = 'upcoming';
         let statusLabel = 'Upcoming';
-        
+
         if (eventDate < today) {
             status = 'past';
             statusLabel = 'Past';
@@ -1208,7 +1216,7 @@ function renderEvents() {
             status = 'ongoing';
             statusLabel = 'Today';
         }
-        
+
         return `
             <tr>
                 <td><strong>${event.name}</strong><br><small>${event.description || ''}</small></td>
@@ -1310,16 +1318,20 @@ async function loadRegistrations() {
         const response = await fetch(`${API_URL}/registrations`, {
             headers: getHeaders()
         });
+        if (response.status === 401 || response.status === 403) return performLogout();
+        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
         registrations = await response.json();
         renderRegistrations();
     } catch (error) {
         console.error('Error loading registrations:', error);
+        registrations = [];
+        renderRegistrations();
     }
 }
 
 function renderRegistrations() {
     const container = document.getElementById('registrationsList');
-    
+
     if (registrations.length === 0) {
         container.innerHTML = `
             <tr>
@@ -1339,7 +1351,7 @@ function renderRegistrations() {
         const eventName = reg.event?.name || 'Unknown Event';
         const memberName = reg.member?.name || 'Unknown Member';
         const registeredDate = new Date(reg.created_at).toLocaleDateString();
-        
+
         return `
             <tr>
                 <td>${eventName}</td>
@@ -1452,24 +1464,21 @@ async function loadDonations() {
         const response = await fetch(`${API_URL}/donations`, {
             headers: getHeaders()
         });
-        if (!response.ok) {
-            console.error('Failed to load donations. Status:', response.status);
-            console.error('Response:', await response.text());
-            donations = [];
-            return;
-        }
+        if (response.status === 401 || response.status === 403) return performLogout();
+        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
         donations = await response.json();
         renderDonations();
         updateDonationStats();
     } catch (error) {
         console.error('Error loading donations:', error);
         donations = [];
+        renderDonations();
     }
 }
 
 function renderDonations() {
     const container = document.getElementById('donationsList');
-    
+
     if (donations.length === 0) {
         container.innerHTML = `
             <tr>
@@ -1511,17 +1520,17 @@ function updateDonationStats() {
     const today = new Date();
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
     const yearStart = new Date(today.getFullYear(), 0, 1);
-    
+
     const monthlyTotal = donations
         .filter(d => new Date(d.created_at) >= monthStart)
         .reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0);
-    
+
     const yearlyTotal = donations
         .filter(d => new Date(d.created_at) >= yearStart)
         .reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0);
-    
+
     const donorCount = new Set(donations.map(d => d.donor_name)).size;
-    
+
     document.getElementById('monthTotal').textContent = '₱' + monthlyTotal.toLocaleString();
     document.getElementById('yearTotal').textContent = '₱' + yearlyTotal.toLocaleString();
     document.getElementById('donorCount').textContent = donorCount;
@@ -1573,13 +1582,13 @@ async function deleteDonation(id) {
 
 function renderBirthdays() {
     const container = document.getElementById('birthdaysList');
-    
+
     const membersWithBirthdays = members.filter(m => m.birthday).sort((a, b) => {
         const aDate = new Date(a.birthday);
         const bDate = new Date(b.birthday);
         return (aDate.getMonth() - bDate.getMonth()) || (aDate.getDate() - bDate.getDate());
     });
-    
+
     if (membersWithBirthdays.length === 0) {
         container.innerHTML = `
             <tr>
@@ -1602,7 +1611,7 @@ function renderBirthdays() {
         const nextBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
         if (nextBirthday < today) nextBirthday.setFullYear(today.getFullYear() + 1);
         const daysUntil = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
-        
+
         return `
             <tr>
                 <td><strong>${member.name}</strong></td>
@@ -1658,22 +1667,23 @@ let editingUserId = null;
 
 async function loadUsers() {
     try {
-        const response = await fetch(`${API_URL}/users`, { 
+        const response = await fetch(`${API_URL}/users`, {
             headers: getHeaders()
         });
-        if (response.ok) {
-            users = await response.json();
-            renderUsers();
-        }
+        if (response.status === 401 || response.status === 403) return performLogout();
+        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+        users = await response.json();
+        renderUsers();
     } catch (error) {
         console.error('Error loading users:', error);
-        //showNotification('Failed to load users', 'error');
+        users = [];
+        renderUsers();
     }
 }
 
 function renderUsers() {
     const container = document.getElementById('usersList');
-    
+
     if (users.length === 0) {
         container.innerHTML = `
             <tr>
@@ -1731,41 +1741,41 @@ function closeUserModal() {
 async function editUser(userId) {
     const user = users.find(u => u.id === userId);
     if (!user) return;
-    
+
     editingUserId = userId;
     document.getElementById('userModalTitle').textContent = 'Edit User';
     document.getElementById('userForm').reset();
-    
+
     // Hide password field when editing (only update if explicitly changed)
     document.getElementById('passwordGroup').style.display = 'none';
     document.querySelector('input[name="password"]').required = false;
-    
+
     document.querySelector('input[name="name"]').value = user.name || '';
     document.querySelector('input[name="email"]').value = user.email;
     document.querySelector('select[name="role"]').value = user.role;
-    
+
     document.getElementById('userModal').classList.add('active');
 }
 
 function validateUser(data) {
     clearFormErrors('userForm');
     let isValid = true;
-    
+
     if (!data.name || data.name.trim() === '') {
         showFieldError('userName', 'userForm', 'Name is required');
         isValid = false;
     }
-    
+
     if (!data.email || data.email.trim() === '') {
         showFieldError('userEmail', 'userForm', 'Email is required');
         isValid = false;
     }
-    
+
     if (!editingUserId && (!data.password || data.password.trim() === '')) {
         showFieldError('userPassword', 'userForm', 'Password is required');
         isValid = false;
     }
-    
+
     return isValid;
 }
 
@@ -1773,9 +1783,9 @@ async function validateAndSaveUser(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData);
-    
+
     if (!validateUser(data)) return;
-    
+
     try {
         let response;
         const payload = {
@@ -1783,13 +1793,13 @@ async function validateAndSaveUser(event) {
             email: data.email,
             role: data.role
         };
-        
+
         if (editingUserId) {
             // Editing existing user
             if (data.password) {
                 payload.password = data.password;
             }
-            response = await fetch(`${API_URL}/users/${editingUserId}`, { 
+            response = await fetch(`${API_URL}/users/${editingUserId}`, {
                 method: 'PUT',
                 headers: getHeaders(),
                 body: JSON.stringify(payload)
@@ -1797,13 +1807,13 @@ async function validateAndSaveUser(event) {
         } else {
             // Creating new user
             payload.password = data.password;
-            response = await fetch(`${API_URL}/users`, { 
+            response = await fetch(`${API_URL}/users`, {
                 method: 'POST',
                 headers: getHeaders(),
                 body: JSON.stringify(payload)
             });
         }
-        
+
         if (response.ok) {
             await loadUsers();
             closeUserModal();
@@ -1826,7 +1836,7 @@ function filterUsers() {
     const searchInput = document.getElementById('usersSearchInput');
     const searchTerm = searchInput.value.toLowerCase();
     const rows = document.querySelectorAll('#usersList tr');
-    
+
     rows.forEach(row => {
         const text = row.innerText.toLowerCase();
         row.style.display = text.includes(searchTerm) ? '' : 'none';
@@ -1857,7 +1867,7 @@ function filterEvents() {
     const searchInput = document.getElementById('eventsSearchInput');
     const searchTerm = searchInput.value.toLowerCase();
     const rows = document.querySelectorAll('#eventsList tr');
-    
+
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = text.includes(searchTerm) ? '' : 'none';
@@ -1868,7 +1878,7 @@ function filterMembers() {
     const searchInput = document.getElementById('membersSearchInput');
     const searchTerm = searchInput.value.toLowerCase();
     const rows = document.querySelectorAll('#membersList tr');
-    
+
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = text.includes(searchTerm) ? '' : 'none';
@@ -1879,7 +1889,7 @@ function filterRegistrations() {
     const searchInput = document.getElementById('registrationsSearchInput');
     const searchTerm = searchInput.value.toLowerCase();
     const rows = document.querySelectorAll('#registrationsList tr');
-    
+
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = text.includes(searchTerm) ? '' : 'none';
@@ -1890,7 +1900,7 @@ function filterDonations() {
     const searchInput = document.getElementById('donationsSearchInput');
     const searchTerm = searchInput.value.toLowerCase();
     const rows = document.querySelectorAll('#donationsList tr');
-    
+
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = text.includes(searchTerm) ? '' : 'none';
@@ -1901,7 +1911,7 @@ function filterBirthdays() {
     const searchInput = document.getElementById('birthdaysSearchInput');
     const searchTerm = searchInput.value.toLowerCase();
     const rows = document.querySelectorAll('#birthdaysList tr');
-    
+
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = text.includes(searchTerm) ? '' : 'none';
